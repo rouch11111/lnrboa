@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="lndaily.com.cn.mapper.RoleAuthMapper">
+    <resultMap id="roleauth" type="lndaily.com.cn.bean.RoleAuth">
+        <id property="connid" column="connid"></id>
+        <result property="roleid" column="roleid"></result>
+        <result property="authid" column="authid"></result>
+        <result property="isauth" column="isauth"></result>
+    </resultMap>
+
+    <insert id="saveroleauth" parameterType="lndaily.com.cn.bean.RoleAuth">
+        insert into role_auth (roleid,authid,isauth) values (#{roleid},#{authid},#{isauth})
+    </insert>
+
+    <select id="findischeck" parameterType="map" resultMap="roleauth">
+        select * from role_auth where roleid = #{roleid} and authid = #{authid}
+    </select>
+
+    <select id="findauths" resultMap="roleauth" parameterType="int">
+        select * from role_auth where roleid = #{roleid} and isauth = 1
+    </select>
+
+
+
+    <update id="updateauth" parameterType="map">
+        update role_auth set
+        isauth = #{status}
+        where roleid = #{roleid} and authid = #{authid}
+    </update>
+</mapper>

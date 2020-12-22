@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>emp</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>新添员工</legend>
+</fieldset>
+<form class="layui-form" action="" lay-filter="empform" enctype="multipart/form-data" id="empform">
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-block">
+            <input type="text" name="name" lay-verify="title" autocomplete="off" placeholder="请输入姓名" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户名</label>
+        <div class="layui-input-block">
+            <input type="text" name="username" lay-verify="title" autocomplete="off" placeholder="请输入用户名" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">部门</label>
+        <div class="layui-input-block">
+            <select name="deptid" id="dept" lay-verify="">
+                <option value="">请选择一个部门</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">密码</label>
+        <div class="layui-input-block">
+            <input type="password" name="password" lay-verify="title" autocomplete="off" placeholder="请输入密码" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">电话</label>
+        <div class="layui-input-block">
+            <input type="text" name="telephone" lay-verify="title" autocomplete="off" placeholder="请输入电话" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item" style="margin-left: 110px;">
+        <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="nesubmit" id="nesubmit">
+            提交
+        </button>
+    </div>
+</form>
+<script type="text/javascript">
+    layui.use(['form','jquery','layer'], function() {
+      var form = layui.form;
+      var $ = layui.jquery;
+      var layer = layui.layer;
+      $.ajax({
+          url: './dept/deptlist',
+          type: 'get',
+          success: function (data) {
+              $.each(data, function (index, value) {
+                  $('#dept').append(new Option(value.deptName,value.deptId));// 下拉菜单里添加元素
+                  form.render("select");
+              });
+          }
+      });
+
+      form.on('submit(nesubmit)',function (data) {
+          //console.log(data.field) ;
+          $.ajax({
+             data:data.field,
+             method:'POST',
+             url:'./user/saveuser',
+             success:function (d) {
+                console.log(d)
+                 if(d == "success"){
+                     layer.alert('添加成功',{icon: 1},function (ind) {
+                         $('#empform')[0].reset();
+                         form.render();
+                         layer.close(ind);
+                     })
+                 }
+                 if(d == "namenull"){
+
+                     layer.alert("名字不能为空",{icon: 7});
+                 }
+                 if(d == "usernamenull"){
+
+                     layer.alert("用户名不能为空",{icon: 7});
+                 }
+                 if(d == "pwnull") {
+
+                     layer.alert("密码不能为空", {icon: 7});
+                 }
+                 if(d == "username"){
+
+                     layer.alert("用户名重复",{icon: 7});
+                 }
+             }
+          });
+      })
+    })
+</script>
+</body>
+</html>

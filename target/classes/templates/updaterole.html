@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>update.html</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>编辑权限</legend>
+</fieldset>
+<form class="layui-form" action="" lay-filter="roform" enctype="multipart/form-data" id="roleform">
+    <input type="hidden" id="roleid" name="roleid">
+    <input type="hidden" id="rolename" name="rolename">
+</form>
+<script th:src="@{/layui/layui.js}"></script>
+<!--<script type="text/javascript">-->
+<!--    -->
+<!--</script>-->
+<script type="text/javascript">
+layui.use(['jquery','upload','layedit','form','laydate','layer'],function() {
+    var $ = layui.jquery;
+    var upload = layui.upload;
+    var layedit = layui.layedit;
+    var form = layui.form;
+    var laydate = layui.laydate;
+    var layer = layui.layer;
+
+
+
+    $(function () {
+        var roleid = [[${role.roleid}]];
+
+        $.ajax({
+            url:'./auth/findmodel',
+            success:function (d) {
+                $.each(d,function (index) {
+                    d[index].roleid = roleid;
+                    $("#roleform").append("<div class=\"layui-form-item\">\n" +
+                        "        <label class=\"layui-form-label\">"+d[index].authname+"</label>\n" +
+                        "        <div class=\"layui-input-block\" id="+d[index].authid+">\n" +"</div>");
+                        $.ajax({
+                            url:'./auth/findauths',
+                            data:d[index],
+                            success:function (da) {
+                                $.each(da,function (ind) {
+                                    if(da[ind].status == 1){
+                                        var $li = $("<input type='checkbox' name='"+da[ind].nameid+"' title='"+da[ind].authname+" 'checked>");
+                                    }
+                                    else{
+
+                                        var $li = $("<input type='checkbox' name='"+da[ind].nameid+"' title='"+da[ind].authname+" '>");
+                                    }
+
+                                    $("#"+d[index].authid).append($li);
+                                })
+                                form.render();
+                            },
+                            error:function () {+
+                                console.log("error");
+                            }
+                        })
+                })
+                $("#roleform").append('<div class="layui-form-item" style="margin-left: 110px;">\n' +
+                    '        <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="rolesubmit" id="rsubmit">\n' +
+                    '            提交\n' +
+                    '        </button>\n' +
+                    '    </div>');
+
+            }
+        })
+
+
+    });
+
+    // form.render();
+    form.on('submit(rolesubmit)', function(data){
+
+        $.ajax({
+            url:'./auth/giveauths',
+            data:data.field,
+            success:function (d) {
+                if(d == "success"){
+                    layer.alert('修改成功！！！', {icon: 1}, function(){
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);//再执行关闭
+                    });
+                }
+            }
+        })
+    })
+
+});
+</script>
+</body>
+</html>

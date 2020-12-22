@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>hello.html</title>
+	
+    <meta charset="utf-8">
+  	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+ 	<link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+ 	
+  </head>
+  
+  <body>
+  	<form class="layui-form" action="">
+  		<div class="layui-form-item">
+  			<label class="layui-form-label">工作人员</label>
+  			<div class="layui-input-inline">
+		     	<input type="text" name="name" lay-verify="title" autocomplete="off" placeholder="请输入姓名" class="layui-input" >
+		    </div>
+		    <label class="layui-form-label">工作题目</label>
+		    <div class="layui-input-inline">
+		     	<input type="text" name="workname" lay-verify="title" autocomplete="off" placeholder="请输入工作题目" class="layui-input" >
+		    </div>
+		    <label class="layui-form-label">工作内容</label>
+		    <div class="layui-input-inline">
+		     	<input type="text" name="workcontent" lay-verify="title" autocomplete="off" placeholder="请输入工作内容" class="layui-input" >
+		    </div>
+		    <label class="layui-form-label">文件名称</label>
+		    <div class="layui-input-inline">
+		     	<input type="text" name="workfilename" lay-verify="title" autocomplete="off" placeholder="请输入文件名称" class="layui-input" >
+		    </div>
+		    <label class="layui-form-label">工作时间</label>
+		    <div class="layui-input-inline">
+		     	<input type="text" name="time" id="time1" placeholder="请选择时间" class="layui-input" >
+		    </div>
+			<button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="submit">查询</button>
+  		</div>
+  	</form>
+  	<div style="display:none" id="barDemo">
+	  <a class="layui-btn layui-btn-xs" lay-event="detail">查看</a>
+	  <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+	  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+  
+	</div>
+    <table id="demo" lay-filter="demoEvent"></table>
+  
+
+  <script type="text/javascript">
+  	layui.use(['jquery','table','laydate','form','element','util','layedit'], function(){
+	  	var $ = layui.jquery;
+	  	var table = layui.table;
+	  	var laydate = layui.laydate;
+	  	var form = layui.form;
+	  	var element = layui.element;
+	  	var util = layui.util;
+		var layedit = layui.layedit;
+
+
+
+
+		form.on('submit(submit)', function(data){
+			//console.log(data.elem) //被执行事件的元素DOM对象，一般为button对象
+			//console.log(data.form) //被执行提交的form对象，一般在存在form标签时才会返回
+			//console.log(data.field) //当前容器的全部表单字段，名值对形式：{name: value}
+
+			table.render({
+				elem:'#demo'
+				,height: 540
+				,url: './work/findcon' //数据接口
+				,toolbar:true
+				,toolRow:true
+				,title:'用户数据表'
+				,where:data.field
+				,page: true //开启分页
+				,limit: 10
+				,cols: [ [ //表头
+					{field: 'user.name', title: '工作人员', width:120, sort: true, fixed: 'left',align:'center',templet:function (data) {
+
+							return data.user.name;
+						}}
+					,{field: 'workname', title: '工作题目', width:300,edit:'text'}
+					,{field: 'workcontent', title: '工作内容', width:700,rowspan:1,edit:'text'}
+					,{field: 'worktime', title: '工作时间', width:160,templet:function (d) {
+							return  d.worktime.split("T")[0];
+						}}
+					,{field: 'workfilename', title: '附件', width: 190,event:"download"}
+					,{title:'操作',fixed: 'right', width:180, align:'center', toolbar: '#barDemo'}
+				] ]
+			});
+			return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+		});
+
+	  	laydate.render({
+	  		elem: '#time1',
+	  		range: '~',
+			type: 'date',
+			format:'yyyy-MM-dd'
+		});
+
+	  	table.render({
+	    elem: '#demo'
+	    ,height: 540
+	    ,url: './work/findall' //数据接口
+		,toolbar:true
+		,toolRow:true
+		,title:'用户数据表'
+	    ,page: true //开启分页
+		,limit: 10
+	    ,cols: [ [ //表头
+	      {field: 'user.name', title: '工作人员', width:120, sort: true, fixed: 'left',align:'center',templet:function (data) {
+
+	      	return data.user.name;
+			  }}
+	      ,{field: 'workname', title: '工作题目', width:300,edit:'text'}
+	      ,{field: 'workcontent', title: '工作内容', width:700,rowspan:1,edit:'text'}
+	      ,{field: 'worktime', title: '工作时间', width:160,align:'center',templet:function (d) {
+	      	return  d.worktime.split("T")[0];
+					}}
+	      ,{field: 'workfilename', title: '附件', align:'center',width: 220,event:"download"}
+	      ,{title:'操作',fixed: 'right', width:180, align:'center', toolbar: '#barDemo'}
+	    ] ]
+	  });
+
+	  	table.on('tool(demoEvent)',function (obj) {
+			if(obj.event === 'download'){
+				console.log(obj.data);
+				//window.location.href="./file/download";
+				window.open("./file/download?workfile="+obj.data.workfile+"&workfilename="+obj.data.workfilename,"_blank");
+			}
+			if(obj.event == 'detail'){
+				var time = util.toDateString(obj.data.worktime, "yyyy-MM-dd");
+				layer.open({
+					type: 2,
+					content: './workdetail', //这里content是一个普通的String
+					area: ['1300px','900px'],
+					shadeClose: true,
+					success:function (layero, index){
+						var body = layer.getChildFrame('body', index);
+						body.find("[name='workname']").val(obj.data.workname);
+						body.find("[name='workcontent']").val(obj.data.workcontent);
+						body.find("[name='workfilename']").val(obj.data.workfilename);
+						body.find("[name='worktime']").val(time);
+						sessionStorage.setItem('workcontent', obj.data.workcontent);
+					}
+				});
+			}
+			if(obj.event == 'edit'){
+				var time = util.toDateString(obj.data.worktime, "yyyy-MM-dd");
+				layer.open({
+					type: 2,
+					content: './updatework', //这里content是一个普通的String
+					area: ['1300px','900px'],
+					success:function (layero, index){
+						var body = layer.getChildFrame('body', index);
+						body.find("[name='workid']").val(obj.data.workid);
+						body.find("[name='workname']").val(obj.data.workname);
+						body.find("[name='workcontent']").val(obj.data.workcontent);
+						body.find("[name='workfilename']").val(obj.data.workfilename);
+						body.find("[name='workfile']").val(obj.data.workfile);
+						body.find("[name='worktime']").val(time);
+						sessionStorage.setItem('uworkcontent', obj.data.workcontent);
+					}
+				});
+
+			}
+			if(obj.event == 'del'){
+
+				layer.confirm('真的删除行么', function(index){
+					//向服务端发送删除指令
+					$.ajax({
+						url:  "./work/delwork",
+						type: 'post',
+						data: obj.data,
+						success:function (d) {
+							if(d == "error"){
+								layer.alert('只能删除自己的哦', {icon: 5});
+							}
+							if(d == "success"){
+								obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+								layer.close(index);
+							}
+							console.log(d);
+						},
+						error:function () {
+
+						}
+					});
+
+
+				});
+			}
+		})
+
+
+  	});
+  </script>
+ </body>
+</html>

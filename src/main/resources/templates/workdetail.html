@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>bye.html</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+
+</head>
+
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>工作详情</legend>
+</fieldset>
+<form class="layui-form" action="" lay-filter="form" enctype="multipart/form-data" id="myform">
+    <div class="layui-form-item">
+        <label class="layui-form-label">工作题目</label>
+        <div class="layui-input-block">
+            <input type="text" name="workname" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">工作时间</label>
+        <div class="layui-input-block">
+            <input type="text" name="worktime" id="time" autocomplete="off" placeholder="请选择工作时间" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">工作文件</label>
+        <input type="hidden" id="workfile" name="workfile"/>
+        <div class="layui-input-block">
+            <input type="text" id="workfilename" name="workfilename" class="layui-input"/>
+        </div>
+        <span id="filename"></span>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">工作内容</label>
+        <div class="layui-input-block">
+            <textarea name="workcontent" id="dcontainer" lay-verify="content"  style="height:400px;width:1000px;overflow:auto"></textarea>
+        </div>
+    </div>
+
+</form>
+
+
+<script th:src="@{/layui/layui.js}"></script>
+<script type="text/javascript">
+    layui.config({
+        base:'./js/'
+    }).extend({
+        tinymce:'tinymce/tinymce'
+    }).use(['jquery','layedit','tinymce'],function(){
+        var $ = layui.jquery;
+        var layedit = layui.layedit;
+        var tinymce = layui.tinymce;
+
+        var dedit = tinymce.render({
+            elem:"#dcontainer"
+            ,height:400
+            ,width:1150
+        });
+        var dworkcontent = sessionStorage.getItem('workcontent');
+        dedit.setContent(dworkcontent);
+        /*var index = layedit.build("dcontainer",{
+            height: 400,
+            uploadImage: {
+                url: './file/image/' //接口url
+                ,type: '' //默认post
+            }
+        });*/
+        /*var workcontent = sessionStorage.getItem('workcontent');
+        layedit.setContent(index,workcontent);
+
+        form.verify({
+            content: function (value) {
+                return layedit.sync(index);
+            }
+        });*/
+
+    })
+</script>
+
+</body>
+</html>

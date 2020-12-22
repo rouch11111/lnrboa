@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>辽宁日报OA系统</title>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+    <script th:src="@{/js/echarts.js}"></script>
+</head>
+<body>
+<h1>欢迎</h1>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+    <!--<legend>千万不要硬着头皮做自己根本不擅长的工作，而是应该花更多的精力做自己所擅长的事情。</legend>-->
+    <legend>一个石匠敲一块石头，他一连敲了100次，石头仍然纹丝不动。但当他敲101次，石头裂为两半。可我知道，让石头裂开的不是那最后一击，而是前面100次敲击的结果</legend>
+</fieldset>
+<div class="layui-container">
+    <div class="layui-row">
+         <div class="layui-col-md6">
+             <div id="EchartZhu" style="width: 800px;height: 500px;position: relative;left: -200px;"> </div>
+         </div>
+        <div class="layui-col-md6">
+            <div id="EchartCircle" style="width: 800px;height: 500px;position: relative;right: 0;"> </div>
+        </div>
+    </div>
+    <div class="layui-row">
+        <div class="layui-col-md12">
+            <table id="list" lay-filter="list"></table>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/layui/layui.js}"></script>
+<script>
+    function getDay(day){
+        var today = new Date();
+
+        var targetday_milliseconds=today.getTime() + 1000*60*60*24*day;
+
+        today.setTime(targetday_milliseconds); //注意，这行是关键代码
+
+        var tYear = today.getFullYear();
+        var tMonth = today.getMonth();
+        var tDate = today.getDate();
+        tMonth = doHandleMonth(tMonth + 1);
+        tDate = doHandleMonth(tDate);
+        return tYear+"-"+tMonth+"-"+tDate;
+    }
+    function doHandleMonth(month){
+        var m = month;
+        if(month.toString().length == 1){
+            m = "0" + month;
+        }
+        return m;
+    }
+
+</script>
+<script>
+    //注意：折叠面板 依赖 element 模块，否则无法进行功能性操作
+    layui.config({
+        base: './js/' //静态资源所在路径(使用时,根据自己的结构改动)
+    }).use(['element','echarts','table','jquery'], function() {
+        var element = layui.element;
+        var echarts = layui.echarts;
+        var table = layui.table;
+        var $ = layui.jquery;
+        var EChart = echarts.init(document.getElementById('EchartZhu'));
+        var CChart = echarts.init(document.getElementById('EchartCircle'));
+        //var day = getDay(0);
+        $.get('./work/sevenday',function (data) {
+            EChart.setOption({
+                title: {
+                    text: '近七天日志'
+                },
+                tooltip: {},
+                legend: {
+                    data:['日志数']
+                },
+                xAxis: {
+                    data: [getDay(-6),getDay(-5),getDay(-4),getDay(-3),getDay(-2),getDay(-1),getDay(0)]
+                },
+                yAxis: {
+                    type: 'value',
+                    min: 0,
+                    max: function(value) {return value.max;}
+                },
+                series: [{
+                    name: '日志数',
+                    type: 'bar',
+                    data: data
+                }]
+            });
+        })
+
+        $.get('./work/fivemonth',function (data) {
+            CChart.setOption({
+                title: {
+                    text: '近五个月日志',
+                    left: 'center',
+                    top: 20,
+                    textStyle: {
+                        color: 'rgba(0, 0, 0)'
+                    }
+                },
+
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b} : {c} ({d}%)'
+                },
+
+                visualMap: {
+                    show: false,
+                    min: 5,
+                    max: 300,
+                    inRange: {
+                        colorLightness: [0, 1]
+                    }
+                },
+                series: [
+                    {
+                        name: '日志情况',
+                        type: 'pie',
+                        radius: '55%',
+                        center: ['50%', '50%'],
+                        data: data.sort(function (a, b) { return a.value - b.value; }),
+                        roseType: 'radius',
+                        label: {
+                            color: 'rgba(0, 0, 0)'
+                        },
+                        labelLine: {
+                            lineStyle: {
+                                color: 'rgba(255, 255, 255, 0.8)'
+                            },
+                            smooth: 0.2,
+                            length: 10,
+                            length2: 20
+                        },
+                        itemStyle: {
+                            color: '#c23531',
+                            shadowBlur: 200,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        },
+
+                        animationType: 'scale',
+                        animationEasing: 'elasticOut',
+                        animationDelay: function (idx) {
+                            return Math.random() * 200;
+                        }
+                    }
+                ]
+            });
+        })
+
+        table.render({
+            elem: '#list'
+            ,url: './work/findall' //数据接口
+            ,page: true //开启分页
+            ,limit: 10
+            ,cols: [ [ //表头
+                {field: 'user.name', title: '工作人员',unresize:true,width:120,fixed: 'left',align:'center',templet:function (data) {
+
+                        return data.user.name;
+                    }}
+                ,{field: 'workname', unresize:true,title: '工作名称'}
+                ,{field: 'workcontent',unresize:true, title: '工作内容',rowspan:1}
+                ,{field: 'worktime', unresize:true,title: '工作时间', width:160,templet:function (d) {
+                        return  d.worktime.split("T")[0];
+                    }}
+            ] ]
+        });
+
+
+    });
+</script>
+</body>
+</html>

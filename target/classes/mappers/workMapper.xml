@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="lndaily.com.cn.mapper.WorkMapper">
+
+    <resultMap type="lndaily.com.cn.bean.Work" id="work">
+        <id property="workid" column="workid"/>
+        <result property="workname" column="workname"/>
+        <result property="workcontent" column="workcontent"/>
+        <result property="worktime" column="worktime"/>
+        <result property="workfile" column="workfile"/>
+        <result property="workfilename" column="workfilename"/>
+        <result property="work_userid" column="work_userid"/>
+        <association property="user" javaType="lndaily.com.cn.bean.User">
+            <id property="userid" column="userid"/>
+            <result property="username" column="username"/>
+            <result property="password" column="password"/>
+            <result property="name" column="name"/>
+            <result property="telephone" column="telephone"/>
+        </association>
+    </resultMap>
+
+    <select id="findall" resultMap="work" parameterType="map">
+        select * from work ORDER BY workid desc,worktime desc  limit #{page},#{limit};
+    </select>
+
+    <select id="findallcount" resultType="int">
+        select count(*) from work;
+    </select>
+
+    <select id="findcon" resultMap="work" parameterType="lndaily.com.cn.bean.Work">
+        select w.workname,w.worktime,w.workcontent,
+        w.workid,w.workfilename,
+        w.work_userid,w.workfile
+        from work w
+        <if test="user != null">
+            <if test="user.name != null and user.name != ''">
+                ,user u where w.work_userid = u.userid and u.name like concat('%',#{user.name},'%')
+            </if>
+        </if>
+
+        <if test="user == null">
+            where 1 = 1
+        </if>
+
+        <if test="workname != null and workname != ''">
+            and w.workname like  concat('%',#{workname},'%')
+        </if>
+        <if test="starttime != null">
+            and w.worktime &gt;= #{starttime}
+        </if>
+        <if test="endtime != null">
+            and w.worktime &lt;= #{endtime}
+        </if>
+        <if test="workcontent != null and workcontent != ''" >
+            and w.workcontent like concat('%',#{workcontent},'%')
+        </if>
+        <if test="workfilename != null and workfilename != ''" >
+            and w.workfilename like concat('%',#{workfilename},'%')
+        </if>
+        order by w.workid desc,w.worktime desc
+        limit #{page},#{limit}
+    </select>
+
+    <select id="findconcount" resultType="int" parameterType="lndaily.com.cn.bean.Work">
+        select count(*)
+        from work w
+        <if test="user != null">
+            <if test="user.name != null and user.name != ''">
+                ,user u where w.work_userid = u.userid and u.name like concat('%',#{user.name},'%')
+            </if>
+        </if>
+
+        <if test="user == null">
+            where 1 = 1
+        </if>
+
+        <if test="workname != null and workname != ''">
+            and w.workname like  concat('%',#{workname},'%')
+        </if>
+        <if test="starttime != null">
+            and w.worktime &gt;= #{starttime}
+        </if>
+        <if test="endtime != null">
+            and w.worktime &lt;= #{endtime}
+        </if>
+        <if test="workcontent != null and workcontent != ''" >
+            and w.workcontent like concat('%',#{workcontent},'%')
+        </if>
+        <if test="workfilename != null and workfilename != ''" >
+            and w.workfilename like concat('%',#{workfilename},'%')
+        </if>
+        order by w.workid desc,w.worktime desc
+
+    </select>
+
+    <select id="findWork" parameterType="lndaily.com.cn.bean.Work" resultMap="work">
+ 		select *
+ 		from work
+ 		where workid = #{workid}
+ 	</select>
+
+    <select id="sevencount" parameterType="String" resultType="int">
+        select count(*) from work where worktime = #{date}
+    </select>
+
+    <select id="fivecount" parameterType="map" resultType="int">
+        select count(*) from work where YEAR(worktime)=#{year} and MONTH(worktime)=#{month}
+    </select>
+
+    <update id="updateworkByWorkId" parameterType="lndaily.com.cn.bean.Work">
+        update work
+        <trim prefix="set" suffixOverrides=",">
+            <if test="workname != null and workname != ''">
+                workname = #{workname},
+            </if>
+            <if test="workcontent != null and workcontent != ''">
+                workcontent = #{workcontent},
+            </if>
+            <if test="worktime != null">
+                worktime = #{worktime},
+            </if>
+            <if test="workfilename != null and workfilename !=''">
+                workfilename = #{workfilename},workfile = #{workfile},
+            </if>
+        </trim>
+        where workid = #{workid}
+    </update>
+
+    <insert id="savework" parameterType="lndaily.com.cn.bean.Work">
+ 		insert into work
+ 		(workname,workcontent,worktime,workfile,work_userid,workfilename)
+ 		value (#{workname},#{workcontent},#{worktime},#{workfile},#{work_userid},#{workfilename})
+ 	</insert>
+
+    <delete id="delwork" parameterType="Integer">
+ 		delete from work where workid = #{id}
+ 	</delete>
+</mapper>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<title>Home</title>
+	<!-- Meta tag Keywords -->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="UTF-8" />
+	<meta name="keywords" content=""/>
+	<title>辽宁日报OA系统</title>
+	<script>
+		addEventListener("load", function () {
+			setTimeout(hideURLbar, 0);
+		}, false);
+
+		function hideURLbar() {
+			window.scrollTo(0, 1);
+		}
+	</script>
+	<!-- Meta tag Keywords -->
+	<!-- css files -->
+	<link rel="stylesheet" th:href="@{/css/style.css}" type="text/css" media="all" />
+	<!-- Style-CSS -->
+	<link rel="stylesheet" th:href="@{/css/fontawesome-all.css}" />
+	<!-- Font-Awesome-Icons-CSS -->
+	<!-- //css files -->
+	<!-- web-fonts -->
+	<!--<link th:href="@{http://maxcdn.bootstrapcdn.com/css?family=Josefin+Sans:100,100i,300,300i,400,400i,600,600i,700,700i}" rel="stylesheet">
+	<link th:href="@{http://maxcdn.bootstrapcdn.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i}" rel="stylesheet">-->
+	<!-- //web-fonts -->
+</head>
+
+<body>
+	<!-- bg effect -->
+	<div id="bg">
+		<canvas></canvas>
+		<canvas></canvas>
+		<canvas></canvas>
+	</div>
+	<!-- //bg effect -->
+	<!-- title -->
+	<h1>辽宁日报OA系统</h1>
+	<!-- //title -->
+	<!-- content -->
+	<div class="sub-main-w3">
+		<form onsubmit="return false" method="post" id="form">
+			<h2>登录
+				<!--<i class="fas fa-level-down-alt"></i>-->
+			</h2>
+			<div class="form-style-agile">
+				<label>
+					<i class="fas fa-user"></i>
+					用户名
+				</label>
+				<input placeholder="用户名" name="name" type="text" required="">
+			</div>
+			<div class="form-style-agile">
+				<label>
+					<i class="fas fa-unlock-alt"></i>
+					密码
+				</label>
+				<input placeholder="密码" name="password" type="password" required="">
+			</div>
+			<!-- checkbox -->
+			<div class="wthree-text">
+				<ul>
+					
+					<li>
+
+					</li>
+				</ul>
+			</div>
+			<!-- //checkbox -->
+			<input type="submit" value="登录" id="submit">
+		</form>
+	</div>
+	<!-- //content -->
+
+	<!-- copyright -->
+	<div class="footer">
+		<p>辽宁报刊传媒集团<a target="_blank" href=""></a></p>
+		<p>Copyright &copy; 融媒体发展研究中心.<a target="_blank" href=""></a></p>
+	</div>
+	<!-- //copyright -->
+
+	<!-- Jquery -->
+	<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
+	<!-- //Jquery -->
+
+	<!-- effect js -->
+	<script th:src="@{/js/canva_moving_effect.js}"></script>
+	<!-- //effect js -->
+	<script>
+		$("#submit").click(function () {
+
+			$.ajax({
+				type:"POST",
+				url:"./login/check",
+				data: $('#form').serialize(),
+				success:function (data){
+
+					if(data == "success"){
+						window.location.href = "./index";
+					}else{
+						alert("用户名或密码错误！！！");
+					}
+
+				},
+				error: function () {
+
+				}
+			})
+		})
+	</script>
+
+</body>
+
+</html>

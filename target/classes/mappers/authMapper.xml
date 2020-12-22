@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="lndaily.com.cn.mapper.AuthMapper">
+    <resultMap id="auth" type="lndaily.com.cn.bean.Auth">
+        <id property="authid" column="authid"></id>
+        <result property="authname" column="authname"></result>
+        <result property="authfatherid" column="authfatherid"></result>
+        <result property="authurl" column="authurl"></result>
+        <result property="nameid" column="nameid"></result>
+    </resultMap>
+    <select id="findmodel" resultMap="auth">
+        select * from auth where authfatherid = 0;
+    </select>
+
+    <select id="findauth" parameterType="int" resultMap="auth">
+        select * from auth where authid = #{id}
+    </select>
+
+
+
+    <select id="findauths" parameterType="int" resultMap="auth">
+        select * from auth where authfatherid = #{id}
+    </select>
+
+    <select id="findchildren" resultMap="auth">
+        select * from auth where authfatherid != 0;
+    </select>
+
+    <select id="findByname" resultMap="auth" parameterType="String">
+        select * from auth where nameid = #{name}
+    </select>
+</mapper>

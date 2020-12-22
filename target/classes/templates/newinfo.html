@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Layui-Tinymce</title>
+</head>
+<link rel="stylesheet" href="./layui/css/layui.css">
+<body>
+<form class="layui-form" action="" lay-filter="ninfo" enctype="multipart/form-data" id="newinfo">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">通知题目</label>
+        <div class="layui-input-block">
+            <input type="text" name="infoname" lay-verify="title" autocomplete="off" placeholder="通知题目" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">发布时间</label>
+        <div class="layui-input-block">
+            <input type="text" name="infotime" id="iftime" lay-verify="title" autocomplete="off" placeholder="发布时间" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">是否置顶</label>
+        <div class="layui-input-block">
+            <input type="radio" name="ding" value="1" title="是">
+            <input type="radio" name="ding" value="0" title="否" checked>
+        </div>
+        <span id="idepts"></span>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">通知详情</label>
+        <div class="layui-input-block">
+            <div name="info" id="edit" cols="30" rows="10"></div>
+        </div>
+    </div>
+    <div class="layui-form-item" >
+        <div class="layui-input-block">
+        <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="infosubmit" id="ifsubmit">
+            提交
+        </button>
+        </div>
+    </div>
+</form>
+</body>
+
+
+<script type="text/javascript">
+
+    /*layui.config({
+        base:'./js/'
+    }).extend({
+        tinymce:'tinymce/tinymce'
+    })*/layui.use(['layer','tinymce','form','jquery','element','laydate'], function(){
+
+        var layer = layui.layer;
+        var tinymce = layui.tinymce;
+        var form = layui.form;
+        var $ = layui.jquery;
+        var element = layui.element;
+        var laydate = layui.laydate;
+
+        var edit = null;
+
+        form.render();
+
+        laydate.render({
+            elem: '#iftime'
+            ,type: 'datetime'
+            ,calendar: true
+        });
+
+
+
+         edit = tinymce.render({
+            elem:"#edit"
+            ,height:600
+             ,relative_urls : false
+             , remove_script_host : false
+            ,setup:function (editor) {
+                //console.log("ID为: " + editor.id + " 的编辑器即将初始化.");
+            }
+
+            ,images_upload_handler: function (blobInfo, success, failure,progress){
+                 var xhr, formData;
+                 xhr = new XMLHttpRequest();
+                 xhr.withCredentials = false;
+                 xhr.open('POST', './file/newimage');
+                 xhr.upload.onprogress = function(e){
+                     progress(e.loaded / e.total * 100);
+                 }
+                 xhr.onload = function() {
+                     var json;
+                     if (xhr.status == 403) {
+                         failure('HTTP Error: ' + xhr.status, { remove: true });
+                         return;
+                     }
+                     if (xhr.status < 200 || xhr.status >= 300 ) {
+                         failure('HTTP Error: ' + xhr.status);
+                         return;
+                     }
+                     json = JSON.parse(xhr.responseText);
+                     if (!json || typeof json.location != 'string') {
+                         failure('Invalid JSON: ' + xhr.responseText);
+                         return;
+                     }
+                     success(json.location);
+                 };
+
+                 xhr.onerror = function () {
+                     failure('Image upload failed due to a XHR Transport error. Code: ' + xhr.status);
+                 }
+
+                 formData = new FormData();
+                 formData.append('file', blobInfo.blob(), blobInfo.filename());
+
+                 xhr.send(formData);
+             }
+        })
+        element.on('tabDelete(mainTab)', function(data){
+            edit.remove();
+        });
+
+        form.on('submit(infosubmit)',function (data) {
+
+            var content = tinymce.get('#edit').getContent();
+            var words = edit.plugins.wordcount.getCount();
+            data.field.info = content;
+            data.field.words = words
+            console.log(data.field);
+            $.ajax({
+                url:'./info/newinfo',
+                data: data.field,
+                success:function (d) {
+                    //console.log(d)
+
+                    $('form')[0].reset();
+                    //edit.resetContent();
+                }
+            })
+
+            return false;
+        })
+
+    });
+
+
+</script>
+
+</html>

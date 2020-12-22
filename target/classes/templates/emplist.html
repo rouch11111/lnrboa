@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>emp</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+
+</head>
+<body>
+<form class="layui-form" action="">
+
+    <div class="layui-form-item" style="padding-left: 150px;">
+        <div class="layui-input-inline">
+            <select name="deptid" lay-verify="" >
+
+                <option value="">请选择部门</option>
+                <span th:each="dept,iterStat:${deptlist}">
+                <option th:value="${dept.deptId}" th:text="${dept.deptName}"></option>
+                </span>
+            </select>
+        </div>
+        <label class="layui-form-label">员工姓名</label>
+        <div class="layui-input-inline">
+            <input type="text" name="name" lay-verify="title" autocomplete="off" placeholder="请输入姓名" class="layui-input" >
+        </div>
+        <label class="layui-form-label">用户名</label>
+        <div class="layui-input-inline">
+            <input type="text" name="username" lay-verify="title" autocomplete="off" placeholder="请输入用户名" class="layui-input" >
+        </div>
+        <label class="layui-form-label">电话</label>
+        <div class="layui-input-inline">
+            <input type="text" name="telephone" lay-verify="title" autocomplete="off" placeholder="请输入电话" class="layui-input" >
+        </div>
+
+        <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="esubmit">查询</button>
+    </div>
+
+</form>
+<div style="display:none" id="ebarDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="erole">角色</a>
+    <a class="layui-btn layui-btn-xs" lay-event="eedit">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="edel">删除</a>
+
+</div>
+
+<div style="text-align: center;">
+    <div class="layui-inline">
+        <table id="edemo" lay-filter="etable" style="margin: 0 auto;"></table>
+    </div>
+</div>
+<script type="text/javascript">
+layui.use(['jquery','table','form','layer'], function(){
+    var $ = layui.jquery;
+    var table = layui.table;
+    var form = layui.form;
+    var layer = layui.layer;
+
+    form.render();
+
+    form.on('submit(esubmit)',function (data) {
+        console.log(data.field)
+        table.render({
+            elem: '#edemo'
+            ,height: 540
+            ,width:990
+            ,url: './user/findcon' //数据接口
+            ,toolbar:true
+            ,toolRow:true
+            ,title:'用户数据表'
+            ,where:data.field
+            ,page: true //开启分页
+            ,limit: 10
+            ,cols: [ [ //表头
+                {field: 'dept.deptName', title: '部门',align:'center', width:250,templet:function (d) {
+                        return d.dept.deptName;
+                    }}
+                ,{field: 'name', title: '姓名', width:200,  align:'center'}
+                ,{field: 'username', title: '用户名', width:150, align:'center'}
+                ,{field: 'telephone', title: '电话', width: 200, align:'center',edit:'text'}
+                ,{title:'操作',fixed: 'right', width:180, align:'center', toolbar: '#ebarDemo'}
+            ] ]
+        });
+    })
+
+    table.render({
+        elem: '#edemo'
+        ,height: 540
+        ,width:990
+        ,url: './user/findall' //数据接口
+        ,toolbar:true
+        ,toolRow:true
+        ,title:'用户数据表'
+        ,page: true //开启分页
+        ,limit: 10
+        ,cols: [ [ //表头
+            {field: 'dept.deptName', title: '部门',align:'center', width:250,templet:function (d) {
+                return d.dept.deptName;
+                }}
+            ,{field: 'name', title: '姓名', width:200,  align:'center'}
+            ,{field: 'username', title: '用户名', width:150, align:'center'}
+            ,{field: 'telephone', title: '电话', width: 200, align:'center',edit:'text'}
+            ,{title:'操作',fixed: 'right', width:180, align:'center', toolbar: '#ebarDemo'}
+        ] ]
+    });
+
+    //监听单元格编辑
+    table.on('edit(etable)', function(obj){
+        console.log(obj.data)
+        $.ajax({
+            url:'./user/upphone',
+            method:'POST',
+            data:obj.data,
+            success:function (d) {
+                console.log(d)
+            }
+        })
+    })
+
+    table.on('tool(etable)',function (obj) {
+        if(obj.event == 'eedit'){
+            console.log('edit')
+            console.log(obj.data)
+        }
+        if(obj.event == 'erole'){
+            layer.open({
+                type: 2,
+                content: './giverole?userid='+obj.data.userid, //这里content是一个普通的String
+                area: ['600px','400px'],
+                success:function (layero, index){
+                    var body = layer.getChildFrame('body', index);
+                    body.find("[name='name']").val(obj.data.name);
+                    body.find("[name='userid']").val(obj.data.userid);
+                }
+            });
+        }
+        if(obj.event == 'edel'){
+            console.log('del')
+            console.log(obj.data)
+        }
+    })
+})
+</script>
+</body>
+</html>

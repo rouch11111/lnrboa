@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>辽宁日报OA系统</title>
+  <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+  
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+  <div class="layui-header">
+    <div class="layui-logo">辽宁日报OA系统</div>
+    <!-- 头部区域（可配合layui已有的水平导航） -->
+    <ul class="layui-nav layui-layout-left" lay-filter="index">
+      <li class="layui-nav-item"><a href="javascript:;" id="first" data-src="./first">首页</a></li>
+
+      <li class="layui-nav-item">
+        <a href="javascript:;">其它系统</a>
+        <dl class="layui-nav-child">
+          <dd><a href="http://10.20.173.126" target="_blank">全媒体采编</a></dd>
+          <dd><a href="https://nest.lnrbxmt.com/login" target="_blank">北国云</a></dd>
+          <dd><a href="http://10.20.30.119/newspaper" target="_blank">数字报</a></dd>
+        </dl>
+      </li>
+    </ul>
+    <ul class="layui-nav layui-layout-right">
+      <li class="layui-nav-item">
+        <a href="javascript:;">
+          <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+            <span th:text="${session.name}"></span>
+        </a>
+        <dl class="layui-nav-child">
+          <dd><a href="javascript:;" id="empdetail">基本资料</a></dd>
+          <dd><a href="javascript:;" id="empupdate">修改密码</a></dd>
+        </dl>
+      </li>
+      <li class="layui-nav-item"><a href="javascript:;" id="exit">退出</a></li>
+    </ul>
+  </div>
+  
+  <div class="layui-side layui-bg-black">
+    <div class="layui-side-scroll">
+      <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+      <ul class="layui-nav layui-nav-tree"  lay-filter="test" id="nav-list">
+<!--        <li class="layui-nav-item layui-nav-itemed">
+          <a class="" href="javascript:;">工作日志</a>
+          <dl class="layui-nav-child">
+            <dd><a href="javascript:;" id="worklist" data-src="./worklist">工作列表</a></dd>
+            <dd><a href="javascript:;" id="newwork" data-src="./newwork">新工作</a></dd>
+          </dl>
+        </li>
+        <li class="layui-nav-item">
+          <a href="javascript:;">文件管理</a>
+          <dl class="layui-nav-child">
+            <dd><a href="javascript:;" id="upload" data-src="./upload">上传文件</a></dd>
+            <dd><a href="javascript:;" id="filelist" data-src="./filelist">文件列表</a></dd>
+          </dl>
+        </li>
+        <li class="layui-nav-item">
+          <a href="javascript:;">通知公告</a>
+          <dl class="layui-nav-child">
+            <dd><a href="javascript:;" id="infolist" data-src="./infolist">通知列表</a></dd>
+            <dd><a href="javascript:;" id="newinfo" data-src="./newinfo">发布通知</a></dd>
+            <dd><a href="javascript:;" id="newvote" data-src="./newvote">发起投票</a></dd>
+          </dl>
+        </li>
+        <li class="layui-nav-item">
+          <a href="javascript:;">系统管理</a>
+          <dl class="layui-nav-child">
+            <dd><a href="javascript:;" id="deptlist" data-src="./deptlist">部门列表</a></dd>
+            <dd><a href="javascript:;" id="newdept" data-src="./newdept">添加部门</a></dd>
+            <dd><a href="javascript:;" id="emplist" data-src="./emplist">员工列表</a></dd>
+            <dd><a href="javascript:;" id="newemp" data-src="./newemp">添加员工</a></dd>
+            <dd><a href="javascript:;" id="rolelist" data-src="./rolelist">角色列表</a></dd>
+            <dd><a href="javascript:;" id="newrole" data-src="./newrole">添加角色</a></dd>
+
+          </dl>
+        </li>-->
+      </ul>
+    </div>
+  </div>
+  
+  <div class="layui-body">
+    <!-- 内容主体区域 -->
+    <div>内容主体区域</div>
+	    <div class="layui-tab layui-tab-brief" lay-allowClose="true" lay-filter="mainTab">
+            <ul class="layui-tab-title" style="position: fixed;left: 200px;right: 0;top: 60px;z-index: 999;background-color: white;">
+            	<!--<li class="layui-this" lay-id="first">首页</li>-->
+            </ul>
+            <div id="content" class="layui-tab-content" style="margin-top: 30px;padding-bottom: 0px;">
+            	 <!--<div class="layui-tab-item layui-show">
+
+
+                 </div>-->
+            </div>
+        </div>
+  </div>
+  
+  <div class="layui-footer">
+    <!-- 底部固定区域 -->
+    Copyright &copy; 融媒体发展研究中心
+  </div>
+</div>
+<script th:src="@{/layui/layui.js}"></script>
+  
+<script>
+//JavaScript代码区域
+layui.config({
+  base:'./js/'
+}).extend({
+  tinymce:'tinymce/tinymce'
+}).use(['element','jquery','layedit','layer'], function(){
+//layui.use(['element','jquery','layedit','layer'], function(){
+
+  var element = layui.element;
+  var $ = layui.jquery;
+  var layer = layui.layer;
+  $().ready(function(){
+    var url = "./first"
+    element.tabAdd('mainTab',{
+      title:"首页",
+      content:'<iframe frameborder="0" src="'+url+'" style="width: 100%;height: 820px;" scrolling="yes" ></iframe>',
+      id: "first"
+    });
+    element.tabChange('mainTab', "first");
+    $.ajax({
+      url:"./user/navlist",
+      success:function (d) {
+        $.each(d,function (index,value) {
+          //console.log(d[index]);
+          var $li = $('<li class="layui-nav-item"><a class="" href="javascript:;">'+d[index].authname+'</a><dl class="layui-nav-child" id="'+d[index].authid+'"></dl></li>');
+          $("#nav-list").append($li);
+          $.ajax({
+            url:"./user/navchild",
+            data:d[index],
+            success:function (da) {
+              $.each(da,function (ind) {
+                var $dd = $('<dd><a href="javascript:;" id="'+da[ind].nameid+'" data-src="./'+da[ind].nameid+'">'+da[ind].authname+'</a></dd>');
+                //var $dd = $('<dd><a href="javascript:;" id="newrole" data-src="./newrole">添加角色</a></dd>');
+                $('#'+d[index].authid).append($dd);
+              })
+              var layFilter = $("#nav-list").attr('test');
+              element.render('nav', layFilter);
+            }
+          })
+        })
+
+      }
+    });
+  });
+
+  $("#empdetail").click(function () {
+    layer.open({
+      type: 2,
+      content: './empdetail', //这里content是一个普通的String
+      area: ['600px','400px']
+    });
+  });
+
+  $("#empupdate").click(function () {
+    layer.open({
+      type: 2,
+      content: './emppass', //这里content是一个普通的String
+      area: ['600px','400px']
+    });
+  });
+
+  $("#exit").click(function () {
+    layer.confirm('真的退出吗', function(index){
+      $.ajax({
+        url:  "./login/logout",
+        success:function (d) {
+          if(d == "success"){
+            layer.close(index);
+            parent.location.reload();
+          }
+        }
+      });
+
+    });
+  });
+
+  element.on('nav(index)',function (e) {
+    if($(".layui-tab").find('li[lay-id="' + e[0].id + '"]').length > 0){
+      //如果选项卡已存在，则直接切换
+      element.tabChange('mainTab', e[0].id);
+
+    }else{
+      if (e[0].dataset.src != null && "" != e[0].dataset.src){
+        element.tabAdd('mainTab',{
+          title:"首页",
+          content:'<iframe frameborder="0" src="'+e[0].dataset.src+'" style="width: 100%;height: 800px;" scrolling="yes" ></iframe>',
+          id: "first"
+        });
+        element.tabChange('mainTab', e[0].id);
+      }
+
+    }
+  })
+
+  element.on('nav(test)',function(e){
+  	if($(".layui-tab").find('li[lay-id="' + e[0].id + '"]').length > 0){
+        //如果选项卡已存在，则直接切换
+        element.tabChange('mainTab', e[0].id);
+    }else{
+    	 if (e[0].dataset.src != null && "" != e[0].dataset.src){
+       	 	$.ajax({
+              url:  e[0].dataset.src,
+              type: 'post',
+              dataType: "html",
+              success:function(data){
+            	element.tabAdd('mainTab',{
+					       title:e[0].innerText,
+					       content:data,
+					       id: e[0].id
+      				})
+
+                element.tabChange('mainTab', e[0].id);
+
+              }
+       	 	})
+ 	 }
+    }
+  });
+
+  element.on('tab(mainTab)',function(data){
+  	if(data.elem.context.attributes != undefined){
+        //1 得到选项卡的ID
+        var tabId = data.elem.context.attributes[0].nodeValue;
+        //2 得到全部<dd>标签，并遍历
+        var dds = $(".layui-nav-child dd");
+        if (dds && dds.length > 0){
+            for(var i=0;i<dds.length;i++){
+                if((dds[i].innerHTML + "").indexOf(tabId) > 0){
+                    //2.1 如果包含选项卡ID，则说明是新选的选项卡，添加样式
+                    dds[i].classList.add("layui-this");
+                }else{
+                    //2.2 其他的<dd>均去掉样式
+                    dds[i].classList.remove("layui-this");
+                }
+            }
+        }
+    }
+  });
+});
+</script>
+</body>
+</html>
+      

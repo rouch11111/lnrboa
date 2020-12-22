@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="lndaily.com.cn.mapper.UserMapper">
+    <resultMap id="user" type="lndaily.com.cn.bean.User">
+        <id property="userid" column="userid"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="name" column="name"/>
+        <result property="telephone" column="telephone"/>
+        <result property="deptid" column="dept_id"/>
+        <association property="dept" javaType="lndaily.com.cn.bean.Dept">
+            <id property="deptId" column="deptid"/>
+            <result property="deptName" column="deptname"/>
+        </association>
+    </resultMap>
+    <select id="checklogin" parameterType="map" resultType="lndaily.com.cn.bean.User">
+        select * from user where username = #{username} and password = #{password}
+    </select>
+
+    <select id="findById" parameterType="int" resultMap="user">
+        select * from user where userid = #{id}
+    </select>
+
+    <select id="findByusername" parameterType="lndaily.com.cn.bean.User" resultMap="user">
+        select * from user where username = #{username}
+    </select>
+
+    <select id="findall" resultMap="user" parameterType="map">
+        select * from user limit #{page},#{limit}
+    </select>
+
+    <select id="findcon" resultMap="user" parameterType="lndaily.com.cn.bean.User">
+        select * from user
+        where 1 = 1
+        <if test="name != null and name != ''">
+            and name like  concat('%',#{name},'%')
+        </if>
+        <if test="username != null and username != ''">
+            and username like  concat('%',#{username},'%')
+        </if>
+        <if test="telephone != null and telephone != ''">
+            and telephone like  concat('%',#{telephone},'%')
+        </if>
+        <if test="deptid != null and deptid != ''">
+            and dept_id = #{deptid}
+        </if>
+        limit #{page},#{limit}
+    </select>
+
+    <select id="findconcount" resultType="int" parameterType="lndaily.com.cn.bean.User">
+        select count(*) from user
+        where 1 = 1
+        <if test="name != null and name != ''">
+            and name like  concat('%',#{name},'%')
+        </if>
+        <if test="username != null and username != ''">
+            and username like  concat('%',#{username},'%')
+        </if>
+        <if test="telephone != null and telephone != ''">
+            and telephone like  concat('%',#{telephone},'%')
+        </if>
+        <if test="deptid != null and deptid != ''">
+            and dept_id = #{deptid}
+        </if>
+    </select>
+
+    <select id="findallcount" resultType="int">
+        select count(*) from user
+    </select>
+
+    <update id="updatepassword" parameterType="lndaily.com.cn.bean.User">
+ 		update user set
+ 		password = #{password}
+ 		where userid = #{userid}
+ 	</update>
+
+    <update id="updateuser" parameterType="lndaily.com.cn.bean.User">
+        update user
+        <trim prefix="set" suffixOverrides=",">
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="telephone != null and telephone !=''">
+                telephone = #{telephone},
+            </if>
+            <if test="deptid != null and deptid != ''">
+                dept_id = #{deptid},
+            </if>
+        </trim>
+        where userid = #{userid}
+    </update>
+
+    <insert id="saveuser" parameterType="lndaily.com.cn.bean.User">
+        insert into user (username,password,name,telephone,dept_id)
+        values (#{username},#{password},#{name},#{telephone},#{deptid})
+    </insert>
+
+</mapper>

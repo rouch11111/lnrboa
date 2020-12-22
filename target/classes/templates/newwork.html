@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>bye.html</title>
+	
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+    
+  </head>
+  
+  <body>
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+      <legend>新的工作</legend>
+    </fieldset>
+    <form class="layui-form" action="" lay-filter="form" enctype="multipart/form-data" id="myform">
+      <div class="layui-form-item">
+        <label class="layui-form-label">工作题目</label>
+        <div class="layui-input-block">
+          <input type="text" name="workname" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <label class="layui-form-label">工作时间</label>
+        <div class="layui-input-block">
+          <input type="text" name="worktime" id="time" autocomplete="off" placeholder="请选择工作时间" class="layui-input">
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <label class="layui-form-label">附件</label>
+        <div class="layui-input-inline">
+          <button type="button" class="layui-btn" id="test1" name="filename">
+            <i class="layui-icon">&#xe67c;</i>上传文件
+          </button>
+        </div>
+        <input type="hidden" id="workfile" name="workfile"/>
+        <input type="hidden" id="workfilename" name="workfilename"/>
+        <span id="filename"></span>
+      </div>
+      <div class="layui-form-item">
+        <label class="layui-form-label">工作内容</label>
+        <div class="layui-input-block">
+          <textarea name="workcontent" id="container" lay-verify="content"></textarea>
+        </div>
+      </div>
+      <div class="layui-form-item" style="margin-left: 110px;">
+        <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="submit1" id="submit">
+          提交
+        </button>
+
+      </div>
+    </form>
+  
+    
+
+  	<script type="text/javascript">
+    layui.use(['jquery','upload','layedit','form','laydate','layer','tinymce','element'],function(){
+      var $ = layui.jquery;
+      var upload = layui.upload;
+      var layedit = layui.layedit;
+      var form = layui.form;
+      var laydate = layui.laydate;
+      var layer = layui.layer;
+      var tinymce = layui.tinymce;
+      var element = layui.element;
+
+      var filename;
+      var file;
+
+      laydate.render({
+        elem: '#time'
+      });
+
+      ledit = tinymce.render({
+        elem:"#container"
+        ,height:400
+        ,images_upload_handler: function (blobInfo, success, failure,progress){
+          var xhr, formData;
+          xhr = new XMLHttpRequest();
+          xhr.withCredentials = false;
+          xhr.open('POST', './file/newimage');
+          xhr.upload.onprogress = function(e){
+            progress(e.loaded / e.total * 100);
+          }
+          xhr.onload = function() {
+            var json;
+            if (xhr.status == 403) {
+              failure('HTTP Error: ' + xhr.status, { remove: true });
+              return;
+            }
+            if (xhr.status < 200 || xhr.status >= 300 ) {
+              failure('HTTP Error: ' + xhr.status);
+              return;
+            }
+            json = JSON.parse(xhr.responseText);
+            if (!json || typeof json.location != 'string') {
+              failure('Invalid JSON: ' + xhr.responseText);
+              return;
+            }
+            success(json.location);
+          };
+
+          xhr.onerror = function () {
+            failure('Image upload failed due to a XHR Transport error. Code: ' + xhr.status);
+          }
+
+          formData = new FormData();
+          formData.append('file', blobInfo.blob(), blobInfo.filename());
+
+          xhr.send(formData);
+        }
+      })
+      element.on('tabDelete(mainTab)', function(data){
+        ledit.remove();
+      });
+/*      var index = layedit.build("container",{
+        height: 400,
+        uploadImage: {
+          url: './file/image/' //接口url
+          ,type: '' //默认post
+        }
+      });
+      form.verify({
+        content: function (value) {
+          return layedit.sync(index);
+        }
+      });*/
+      form.on('submit(submit1)', function(data){
+        //console.log(data.elem) //被执行事件的元素DOM对象，一般为button对象
+        //console.log(data.form) //被执行提交的form对象，一般在存在form标签时才会返回
+        var content = tinymce.get('#container').getContent();
+        data.field.workcontent = content;
+        $.ajax({
+          type:"POST",
+          url:"./work/newwork/",
+          data:data.field,
+          //dataType:"JSON",
+          success:function (d) {
+            //console.log(data);
+            if(d == "success"){
+              layer.alert('添加成功',{icon: 1},function (ind) {
+                $('#myform')[0].reset();
+                /*index = layedit.build("container",{
+                  height: 400,
+                  uploadImage: {
+                    url: './file/image/' //接口url
+                    ,type: '' //默认post
+                  }
+                });
+                form.render();*/
+                $("#filename").empty();
+                layer.close(ind);
+              });
+            }
+            if(d == "timenull"){
+
+              layer.alert("时间不能为空",{icon: 7});
+            }
+            if(d == "namenull"){
+
+              layer.alert("工作名称不能为空",{icon: 7});
+            }
+
+          }
+        });
+
+        console.log(data.field) //当前容器的全部表单字段，名值对形式：{name: value}
+
+
+        return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+      });
+
+      upload.render({
+        elem: '#test1' //绑定元素
+        ,url: './file/fujian/' //上传接口
+        ,accept: "file"
+
+        ,choose:function (obj) {
+          obj.preview(function (index, file, result) {
+            $("#filename").append(file.name);
+          })
+        }
+        ,before: function (obj) {
+          this.data = {
+            file: $('input[name="file"]').val()
+          }
+        }
+        ,done: function(res){
+          //上传完毕回调
+          console.log(res);
+          $("#filename").append('<i class="layui-icon" style="color: #FF0000;">&#xe605;</i>');
+          $("#workfile").val(res.data[0]);
+          $("#workfilename").val(res.data[1]);
+          form.render();
+        }
+        ,error: function(){
+          //请求异常回调
+          $("#filename").append('<i class="layui-icon" style="color: #FF0000;">&#x1006;</i>');
+          layer.msg('上传失败，请重新选择文件', {icon: 5});
+        }
+      });
+
+
+      
+    })
+  </script>
+
+  </body>
+</html>

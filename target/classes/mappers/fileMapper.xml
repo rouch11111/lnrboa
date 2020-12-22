@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="lndaily.com.cn.mapper.FileMapper">
+    <resultMap type="lndaily.com.cn.bean.File" id="file">
+        <id property="fileid" column="fileid"/>
+        <result property="filename" column="filename"/>
+        <result property="filepath" column="filepath"/>
+        <result property="dept_id" column="dept_id"/>
+        <result property="user_id" column="user_id"/>
+        <result property="isgroup" column="isgroup"/>
+    </resultMap>
+    <insert id="savefile" parameterType="lndaily.com.cn.bean.File">
+        insert into file (filename,filepath,dept_id,isgroup,user_id) values
+        (#{filename},#{filepath},#{dept_id},#{isgroup},#{user_id})
+    </insert>
+    <select id="findall" resultMap="file" parameterType="lndaily.com.cn.bean.File">
+        select * from file limit #{page},#{limit}
+    </select>
+
+    <select id="findcon" resultMap="file" parameterType="map">
+        select * from file where 1 = 1
+        <if test="filename != null and filename != ''">
+            and filename like  concat('%',#{filename},'%')
+        </if>
+        <if test="isgroup != null and isgroup != ''">
+            and isgroup = #{isgroup}
+        </if>
+        <if test="dept_id != null and dept_id != ''">
+            and dept_id = #{dept_id}
+        </if>
+        limit #{page},#{limit}
+    </select>
+
+    <select id="findallcount" resultType="int" >
+        select count(*) from file
+    </select>
+
+    <delete id="delfile" parameterType="lndaily.com.cn.bean.File">
+        delete  from file where fileid = #{fileid}
+    </delete>
+</mapper>

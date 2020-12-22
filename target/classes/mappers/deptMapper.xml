@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="lndaily.com.cn.mapper.DeptMapper">
+    <resultMap type="lndaily.com.cn.bean.Dept" id="dept">
+        <id property="deptId" column="deptid"/>
+        <result property="deptName" column="deptname"/>
+    </resultMap>
+
+    <select id="findall" resultMap="dept">
+ 		select * from dept
+ 	</select>
+
+    <select id="findallcount" resultType="int">
+ 		select count(*) from dept
+ 	</select>
+
+    <select id="finddeptByid" resultMap="dept" parameterType="int">
+        select * from dept where deptid = #{deptid}
+    </select>
+
+    <select id="finddeptByname" resultMap="dept" parameterType="String">
+        select * from dept where deptname = #{deptname}
+    </select>
+
+    <insert id="savedept" parameterType="String">
+        insert into dept (deptname) values (#{deptname})
+    </insert>
+</mapper>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>rolelist</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+
+</head>
+
+<body>
+
+<div style="display:none" id="roleDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="roleedit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="roledel">删除</a>
+
+</div>
+<div style="text-align: center;">
+    <div class="layui-inline">
+        <table id="role_list" lay-filter="roleld"></table>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    layui.use(['jquery','table'], function(){
+        var $ = layui.jquery;
+        var table = layui.table;
+
+        table.render({
+            elem:'#role_list'
+            ,height: 540
+            ,width:1200
+            ,url: './role/findall' //数据接口
+
+            ,page: true //开启分页
+            ,limit: 15
+            ,cols: [ [ //表头
+                {field: 'rolename', title: '角色名称', fixed: 'left',align:'center'}
+
+                ,{title:'操作',fixed: 'right', width:180, align:'center', toolbar: '#roleDemo'}
+            ] ]
+        });
+
+        table.on('tool(roleld)',function (obj) {
+
+            if(obj.event == 'roleedit'){
+                console.log(obj.data);
+                layer.open({
+                    type: 2,
+                    content: './updaterole?roleid='+obj.data.roleid+'&rolename='+obj.data.rolename, //这里content是一个普通的String
+                    area: ['1300px','900px'],
+                    success:function (layero, index){
+                        var body = layer.getChildFrame('body', index);
+                        body.find("[name='roleid']").val(obj.data.roleid);
+                        body.find("[name='rolename']").val(obj.data.rolename);
+                    }
+                });
+            }
+            if(obj.event == 'roledel'){
+
+                layer.confirm('真的删除行么', function(index){
+                    //向服务端发送删除指令
+                    $.ajax({
+                        url:  "./role/delrole",
+                        type: 'post',
+                        data: obj.data,
+                        success:function (d) {
+                            if(d == "error"){
+                                layer.alert('您没有删除权限！', {icon: 5});
+                            }
+                            if(d == "success"){
+                                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                                layer.close(index);
+                            }
+                            console.log(d);
+                        },
+                        error:function () {
+
+                        }
+                    });
+
+
+                });
+            }
+        })
+    });
+</script>
+</body>
+</html>

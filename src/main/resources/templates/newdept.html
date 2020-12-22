@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>dept</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>新的部门</legend>
+</fieldset>
+<form class="layui-form" action="" lay-filter="form" enctype="multipart/form-data" id="deptform">
+    <div class="layui-form-item">
+        <label class="layui-form-label">部门名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="deptName" lay-verify="title" autocomplete="off" placeholder="请输入部门名称" class="layui-input" style="width: 400px;">
+        </div>
+    </div>
+    <div class="layui-form-item" style="margin-left: 110px;">
+        <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="ndsubmit" id="ndsubmit">
+            提交
+        </button>
+
+    </div>
+</form>
+<script type="text/javascript">
+    layui.use(['form','jquery','layer'], function() {
+        var form = layui.form;
+        var $ = layui.jquery;
+        var layer = layui.layer;
+
+        form.on('submit(ndsubmit)',function (data) {
+            console.log(data.field) //当前容器的全部表单字段，名值对形式：{name: value}
+            $.post({
+               url: './dept/newdept',
+               data: data.field,
+               method:'POST',
+               success:function (d) {
+                   if(d == "success"){
+                       layer.alert('添加成功',{icon: 1},function (ind){
+                           $('#deptform')[0].reset();
+                           layer.close(ind);
+                       });
+                   }
+                   if(d == "same"){
+                       layer.alert("部门名称重复",{icon: 7},function (ind) {
+                           $('#deptform')[0].reset();
+                           layer.close(ind);
+                       });
+                   }
+
+               }
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        })
+    })
+</script>
+</body>
+</html>
